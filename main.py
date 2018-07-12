@@ -97,13 +97,11 @@ def upd_handling():
 while True:
     
     try:
-        #udates = get_bot_updates()
         upd_handling()
     except KeyboardInterrupt: # порождается, если бота остановил пользователь
         print('Interrupted by the user')
         break
     time.sleep(1)   
-    #succeses = msg_handling(udates)
-
+    
 
 
