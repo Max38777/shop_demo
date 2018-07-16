@@ -1,11 +1,13 @@
 import requests
 import json
 import time
+import config
 
-
-URL     = "https://api.telegram.org/bot612780025:AAF_p1_77l061SAHmGnFjErSw3gCVz3D_4c/"
-OFFSET  = 0
+TOKEN = config.TOKEN
+URL     = "https://api.telegram.org/"
 LIMIT   = 0 
+GETUPD_method  = "getUpdates"
+POSTMSG_method = "sendMessage"
 
 def bot_about():
     text = """
@@ -18,16 +20,13 @@ def bot_about():
     """
     return text
 
-
 def bot_info():
-
     method = "getMe"
-    response = requests.get(URL + method)
+    response = requests.get(URL + TOKEN +"/"+ method)
     decoded = response.json()
     return json.dumps(decoded, indent=4)
 
 def fetch_crypto(type):
-
     url_crypto = "https://api.cryptonator.com/api/ticker/"
     res = requests.get(url_crypto + type)
     if res.status_code==200:
@@ -37,32 +36,31 @@ def massage_combine(item,text):
     message_data = { 
     'chat_id': item['message']['chat']['id'],               # куда отправляем сообщение
     'text': text,                                         # само сообщение для отправки 
-    #'reply_to_message_id': item['message']['message_id'],   # если параметр указан, то бот отправит сообщение в reply
+    'reply_to_message_id': item['message']['message_id'],   # если параметр указан, то бот отправит сообщение в reply
     'parse_mode': 'HTML' 
     }
     return message_data
 
-def upd_handling():
+def upd_handling(offset):
 
-    method = "getUpdates"
-    global OFFSET
-
-    par = {'limit': LIMIT, 'offset': OFFSET, 'timeout':3}
+    par = {'limit': LIMIT, 'offset': offset, 'timeout':3}
     print(par)
     try:
-        result = requests.get(URL + method, params=par)
+        result = requests.get(URL + TOKEN +"/"+ GETUPD_method, params=par)
     except:
         print('Error getting updates')
-        return False
+        return offset
 
-    if not result.status_code == 200: return False
-    if not result.json()['ok']: return False
+    if not result.status_code == 200: 
+        return offset
+    if not result.json()['ok']: 
+        return offset
 
     udates = result.json()['result']
 
     for item in udates:
          
-        OFFSET = item['update_id']+1
+        new_offset = item['update_id']+1
         
         if 'message' not in item or 'text' not in item['message']: 
             print('Unknown message')
@@ -76,7 +74,6 @@ def upd_handling():
         # сообщение в ответ
         if not text.find("/start")==-1:
             message_data = massage_combine(item,bot_about()) 
-            
         elif not text.find("/btc")==-1: 
             message_data = massage_combine(item,fetch_crypto("btc-usd"))
         elif not text.find("/eth")==-1:
@@ -84,20 +81,21 @@ def upd_handling():
         else:
             message_data = massage_combine(item,"unused command")
 
-        method = "sendMessage"
         try:
-            result = requests.post(URL + method, data=message_data) # запрос на отправку сообщения
+            result = requests.post(URL + TOKEN +"/"+ POSTMSG_method, data=message_data) # запрос на отправку сообщения
         except:
             print('Send message error')
-            return False
+            return offset
 
         if not result.status_code == 200: # проверим статус пришедшего ответа
-            return False
+            return offset
         
-while True:
-    
+        return new_offset
+
+offset  = 0    
+while True:  
     try:
-        upd_handling()
+        offset = upd_handling(offset)
     except KeyboardInterrupt: # порождается, если бота остановил пользователь
         print('Interrupted by the user')
         break
