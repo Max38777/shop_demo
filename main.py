@@ -32,6 +32,15 @@ def fetch_crypto(type):
     if res.status_code==200:
         return res.json()['ticker']['price']
 
+def get_command(text):
+    if not text.find("/start")==-1:
+        return "start"
+    elif not text.find("/btc")==-1: 
+        return "btc"
+    elif not text.find("/eth")==-1:
+        return "eth"
+    #можно либо продолжить поиск уникальных команд, либо брать любой набор символов после слеша и пытаться получить ответ от API cryptonator
+    
 def massage_combine(item,text):
     message_data = { 
     'chat_id': item['message']['chat']['id'],               # куда отправляем сообщение
@@ -72,12 +81,11 @@ def upd_handling(offset):
         print(message_id, text)
 
         # сообщение в ответ
-        if not text.find("/start")==-1:
+        cmd = get_command(text)
+        if cmd=="start":
             message_data = massage_combine(item,bot_about()) 
-        elif not text.find("/btc")==-1: 
-            message_data = massage_combine(item,fetch_crypto("btc-usd"))
-        elif not text.find("/eth")==-1:
-            message_data = massage_combine(item,fetch_crypto("eth-usd"))
+        elif cmd=="btc" or cmd=="eth":
+            message_data = massage_combine(item,fetch_crypto(cmd+"-usd"))
         else:
             message_data = massage_combine(item,"unused command")
 
