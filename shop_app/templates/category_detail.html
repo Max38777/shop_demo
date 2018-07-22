@@ -1,0 +1,8 @@
+<p><a href="{% url 'index'%}">Home</a></p>
+<h2>Category: {{category.title}}</h2> 
+<p>About: {{ category.description}}</p>
+</br>
+<h3>List of products</h3>
+{% for product in category.products.all %} 
+  <p><a href="{% url 'detail_product' product.id %}">{{product.title}}</a></p>
+{% endfor %} 
