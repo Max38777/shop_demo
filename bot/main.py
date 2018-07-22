@@ -1,7 +1,7 @@
 import requests
 import json
 import time
-import config
+import ../config
 
 TOKEN = config.TOKEN
 URL     = "https://api.telegram.org/"
