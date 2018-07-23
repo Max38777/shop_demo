@@ -1,0 +1,16 @@
+<h2>Categories</h2>
+{% for category in categories %} 
+  <p>
+    <a href="category/{{ category.id }}/">{{category.title}}</a>
+  </p>
+  <!--p>{{ category.description}}</p-->
+{% endfor %} 
+</br>
+<h2>Products</h2>
+{% for product in products %} 
+  <p>
+      <a href="product/{{ product.id }}/">{{product.title}}</a>
+  </p>
+  <!--p> {{ product.description}}</p>
+  <p> {{ product.category.title}}</p-->
+{% endfor %} 
