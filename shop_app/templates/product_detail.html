@@ -2,3 +2,4 @@
 <h2>{{product.title}}</h2> 
 <p>Category: <a href="{% url 'detail_category' product.category.id %}">{{product.category}}</a></p>
 <p>Description: {{ product.description}}</p>
+<button><a href="{% url 'product_order' product.id %}">Заказать</a></button>
